@@ -151,4 +151,67 @@
 (first '(+ 1 1))
 ;; -> +
 
-'(+ 1 1)
+(def developer "Alice")
+;; -> #'user/developer
+
+developer
+;; -> "Alice"
+
+user/developer
+;; -> "Alice"
+
+(let [developer "Alice in Wonderland"]
+  developer)
+;; -> "Alice in Wonderland"
+
+developer
+;; -> "Alice"
+
+(let [developer "Alice in Wonderland"
+      rabbit "White Rabbit"]
+  [developer rabbit])
+;; -> ["Alice in Wonderland" "White Rabbit"]
+
+rabbit
+;; -> CompilerException java.lang.RuntimeException:
+;; -> Unable to resolve symbol: rabbit in this context
+
+(defn follow-the-rabbit [] "Of we go!")
+;; -> #'user/follow-the-rabbit
+
+(follow-the-rabbit)
+;; -> "Off we go!"
+
+(defn shop-for-jams [jam1 jam2]
+  {:name "jam-basket"
+   :jam1 jam1
+   :jam2 jam2})
+;; -> #'user/shop-for-jams
+
+(shop-for-jams "strawberry" "marmalade")
+;; -> {:name "jam-basket", :jam1 "strawberry", :jam2 "marmalade"}
+
+(keys (shop-for-jams "strawberry" "marmalade"))
+;; -> (:name :jam1 :jam2)
+(vals (shop-for-jams "strawberry" "marmalade"))
+;; -> ("jam-basket" "strawberry" "marmalade")
+
+;; anonymous functions
+
+;; returns back a function
+(fn [] (str "Off we go" "!"))
+;; -> #<user$eval790$fn__791 user$eval790$fn__791@2ecd16a2>
+
+;; invode with parens
+((fn [] (str "Off we go!" "!")))
+;; -> "Off we go!"
+
+(def follow-again (fn [] (str "Off we go" "!")))
+;; -> #'user/follow-again
+
+(follow-again)
+;; -> "Off we go!"
+
+;; shortuct form of anonymous function
+(#(str "Off we go" "!"))
+;; -> "Off we go!"
