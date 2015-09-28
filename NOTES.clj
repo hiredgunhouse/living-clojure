@@ -215,3 +215,139 @@ rabbit
 ;; shortuct form of anonymous function
 (#(str "Off we go" "!"))
 ;; -> "Off we go!"
+
+;; if there's one parameter you can use the percent sign (%)
+(#(str "Off we go" "!" " - " %) "again")
+;; -> "Off we go! - again"
+
+;; with multiple parameters you can use %1 %2, etc.
+(#(str "Off we go" "!" " - " %1 %2) "again" "?")
+;; -> "Off we go! - again?"
+
+;; namespaces
+
+(ns alice.favfoods)
+;; -> nil
+
+*ns*
+;; -> #<Namespace alice.favfoods>
+
+(def fav-food "strawberry jam")
+;; -> #'alice.favfoods/fav-food
+
+fav-food
+;; -> "strawberry jam"
+
+;; access via fully qualified namespace
+alice.favfoods/fav-food
+;; -> "strawberry jam"
+
+(ns rabbit.favfoods)
+;; -> nil
+
+fav-food
+;; -> CompilerException java.lang.RuntimeException:
+;; -> Unable to resolve symbol: fav-food in this context
+
+(def fav-food "lettuce soup")
+;; -> #'rabbit.favfoods/fav-food
+
+fav-food
+;; -> "lettuce soup"
+
+alice.favfoods/fav-food
+;; -> "strawberry jam"
+
+;; Union
+(clojure.set/union #{:r :b :w} #{:w :p :y})
+;; -> #{:y :r :w :b :p}
+
+;; load a namespace (clojure.set is auto-required into usr namespace with the REPL starts up)
+(require 'clojure.set)
+
+(ns wonderland)
+;; -> nil
+
+;; using an alias
+(require '[alice.favfoods :as af])
+;; -> nil
+
+af/fav-food
+;; -> "strawberry jam"
+
+(ns wonderland
+  (:require [alice.favfoods :as af]))
+
+af/fav-food
+;; -> "strawberry jam"
+
+(ns wonderland
+  (:require [alice.favfoods :refer :all]
+            [rabbit.favfoods :refere :all]))
+;; -> Exception:
+;;    fav-food already referes to: #'alice.favfoods/fav-food
+;;    in namespace: wonderland
+
+(ns wonderland
+  (:require [clojure.set :as s]))
+
+(defn common-fav-foods [foods1 foods2]
+  (let [food-set1 (set foods1)
+        food-set2 (set foods2)
+        common-foods (s/intersection food-set1 food-set2)]
+    (str "Common Foods: " common-foods)))
+
+(common-fav-foods [:jam :brownies :toast]
+                  [:lettuce :carrots :jam])
+;; ->  "Common Foods: #{:jam}"
+
+(class true)
+;; -> java.lang.Boolean
+
+(true? true)
+;; -> true
+
+(true? false)
+;; -> false
+
+(false? false)
+;; -> true
+
+(false? true)
+;; -> false
+
+(nil? nil)
+;; -> true
+
+(nil? 1)
+;; -> false
+
+(not true)
+;; -> false
+
+(not false)
+;; -> true
+
+;; nil is treated as logically false in some logical tests
+(not nil)
+;; -> true
+
+(not "hi")
+;; -> false
+
+;; = is the same as Java's equals method
+(= :drinkme :drinkme)
+;; -> true
+
+(= :drinkme 4)
+;; -> false
+
+;; collection equality is special
+(= '(:drinkme :bottle) [:drinkme :bottle])
+;; -> true
+
+;; not= is a shortcut for doing (not (= x y))
+(not= :drinkme :4)
+;; -> true
+
+
