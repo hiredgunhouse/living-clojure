@@ -350,4 +350,80 @@ af/fav-food
 (not= :drinkme :4)
 ;; -> true
 
+(empty? [:table :door :key])
+;; -> false
 
+(empty? [])
+;; -> true
+
+(empty? {})
+;; -> true
+
+(empty? '())
+;; -> true
+
+(seq [1 2 3])
+;; -> (1 2 3)
+
+(class [1 2 3])
+;; -> clojure.lang.PersistentVector
+
+(class (seq [1 2 3]))
+;; -> clojure.lang.PersistentVector$ChunkedSeq
+
+(seq [])
+;; -> nil
+
+(empty? [])
+;; -> true
+
+;; use this to check for not empty
+(seq [])
+;; -> nil
+
+(every? odd? [1 3 5])
+;; -> true
+
+(every? odd? [1 2 3 4 5])
+;; -> false
+
+(defn drinkable? [x]
+  (= x :drinkme))
+;; -> #'user/drinkable?
+
+(every? drinkable? [:drinkme :drinkme])
+;; -> true
+
+(every? drinkable? [:drinkme :poison])
+;; -> false
+
+(every? (fn [x] (= x :drinkme)) [:drinkme :drinkme])
+;; -> true
+
+(every? #(= % :drinkme) [:drinkme :drinkme])
+;; -> true
+
+(not-any? #(= % :drinkme) [:drinkme :drinkme])
+;; -> false
+
+(not-any? #(= % :drinkme) [:poison :poison])
+;; -> true
+
+(some #(> % 3) [1 2 3 4 5])
+;; -> true
+
+;; set is a function of its member
+(#{1 2 3 4 5} 3)
+;; -> 3
+
+(some #{3} [1 2 3 4 5])
+;; -> 3
+
+(some #{4 5} [1 2 3 4 5])
+;; -> 4
+
+(some #{nil} [nil nil nil])
+;; -> nil
+
+(some #{false} [false false false])
+;; -> nil
