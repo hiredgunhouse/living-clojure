@@ -542,3 +542,59 @@ af/fav-food
     "empty" "all gone"
     "unknown"))
 ;; -> "unknown"
+
+(defn grow [name direction]
+  (if (= direction :small)
+    (str name " is growing smaller")
+    (str name " is growing bigger")))
+;; -> #'user/grow
+
+(grow "Alice" :small)
+;; -> "Alice is growing smaller"
+
+(grow "Alice" :big)
+"Alice is growing bigger"
+
+(partial grow "Alice")
+;; -> #<core$partial$fn__4228 clojure.core$partial$fn__4228@641624c7>
+
+((partial grow "Alice") :small)
+;; -> "Alice is growing smaller"
+
+(defn toggle-grow [direction]
+  (if (= direction :small) :big :small))
+;; -> #'user/toggle-grow
+
+(toggle-grow :big)
+;; -> :small
+
+(toggle-grow :small)
+;; -> :big
+
+(defn oh-my [direction]
+  (str "Oh My! You are growing " direction))
+;; -> #'user/oh-my
+
+(oh-my (toggle-grow :small))
+;; -> "Oh My! You are growing :big"
+
+(defn surprise [direction]
+  ((comp oh-my toggle-grow) direction))
+;; -> #'user/surprise
+
+(surprise :small)
+;; -> "Oh My! You are growing :big"
+
+(defn adder [x y]
+  (+ x y))
+;; -> #'user/adder
+
+(adder 3 4)
+;; -> 7
+
+;; CAUTION! here we use def rather than defn
+(def adder-5 (partial adder 5))
+;; -> #'user/adder-5
+
+(adder-5 10)
+;; -> 15
