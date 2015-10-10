@@ -44,6 +44,7 @@
 ;; -> [:toast :butter :jam]
 (conj [:toast :butter] :jam :honey)
 ;; -> [:toast :butter :jam :honey]
+
 ;; for lists it adds elements at the beginning
 (conj '(:toast :butter) :jam)
 ;; -> (:jam :toast :butter)
@@ -598,3 +599,323 @@ af/fav-food
 
 (adder-5 10)
 ;; -> 15
+
+(let [[color size] ["blue" "small"]]
+  (str "The " color " door is " size))
+;; -> "The blue door is small"
+
+(let [x ["blue" "small"]
+      color (first x)
+      size (last x)]
+  (str "The " color " door is " size))
+;; -> "The blue door is small"
+
+(let [[color [size]] ["blue" ["very small"]]]
+  (str "The " color " door is " size))
+;; -> "The blue door is very small"
+
+(let [[color [size] :as original] ["blue" ["small"]]]
+  {:color color :size size :original original})
+;; -> {:color "blue", :size "small", :original ["blue" ["small"]]}
+
+(let [{flower1 :flower1 flower2 :flower2}
+      {:flower1 "red" :flower2 "blue"}]
+  (str "The flowers are " flower1 " and " flower2))
+;; -> "The flowers are red and blue"
+
+(let [{flower1 :flower1 flower2 :flower2 :or {flower2 "missing"}}
+      {:flower1 "red"}]
+  (str "The flowers are " flower1 " and " flower2))
+;; -> "The flowers are red and missing"
+
+(let [{flower1 :flower1 :as all-flowers}
+      {:flower1 "red"}]
+  [flower1 all-flowers])
+;; -> ["red {:flower1 "red"}]
+
+(let [{:keys [flower1 flower2]}
+      {:flower1 "red" :flower2 "blue"}]
+  (str "The flowers are " flower1 " and " flower2))
+;; -> "The flowers are red and blue"
+
+(defn flower-colors [colors]
+  (str "The flowers are "
+       (:flower1 colors)
+       " and "
+       (:flower2 colors)))
+;; -> #'user/flower-colors
+
+(flower-colors {:flower1 "red" :flower2 "blue"})
+;; -> "The flowers are red and blue"
+
+(defn flower-colors [{:keys [flower1 flower2]}]
+  (str "The flowers are " flower1 " and " flower2))
+;; -> #'user/flower-colors
+
+(flower-colors {:flower1 "red" :flower2 "blue"})
+;; -> "The flowers are red and blue"
+
+
+;; --- The Power of Laziness ---
+
+
+(take 5 (range))
+;; -> (0 1 2 3 4)
+
+(take 10 (range))
+;; -> (0 1 2 3 4 5 6 7 8 9)
+
+(range 5)
+;; -> (0 1 2 3 4)
+
+(class (range 5))
+;; -> clojure.lang.LazySeq
+
+;; DON"T EVALUATE THIS OR YOUR REPL WILL CRASH
+;;(range)
+
+(take 10 (range))
+;; -> (0 1 2 3 4 5 6 7 8 9)
+
+(count (take 1000 (range)))
+;; -> 1000
+
+(count (take 100000 (range)))
+;; -> 100000
+
+(repeat 3 "rabbit")
+;; -> ("rabbit" "rabbit" "rabbit")
+
+(class (repeat 3 "rabbit"))
+;; -> clojure.lang.LazySeq
+
+(take 5 (repeat "rabbit"))
+;; -> ("rabbit" "rabbit" "rabbit" "rabbit" "rabbit")
+
+(count (take 5000 (repeat "rabbit")))
+;; -> 5000
+
+(rand-int 10)
+;; -> 8
+
+(rand-int 10)
+;; -> 1
+
+(repeat 5 (rand-int 10))
+;; -> (2 2 2 2 2)
+
+#(rand-int 10)
+;; -> #<user$eval721$fn__722 user$eval721$fn__722@308092db>
+
+(#(rand-int 10))
+;; -> 7
+
+(repeatedly 5 #(rand-int 10))
+;; -> (1 2 5 6 9)
+
+(take 10 (repeatedly #(rand-int 10)))
+;; -> (5 1 1 0 1 7 6 7 8 4)
+
+(take 3 (cycle ["big" "small"]))
+;; -> ("big" "small" "big")
+
+(take 6 (cycle ["big" "small"]))
+;; -> ("big" "small" "big" "small" "big" "small")
+
+(take 3 (rest (cycle ["big" "small"])))
+;; -> ("small" "big" "small")
+
+
+;; --- Recursion ---
+
+
+["normal" "too small" "too big" "swimming"]
+#(str "Alice is " %)
+
+(def adjs ["normal"
+           "too small"
+           "too big"
+           "is swimming"])
+
+(defn alice-is [in out]
+  (if (empty? in)
+    out
+    (alice-is
+      (rest in)
+      (conj out
+            (str "Alice is " (first in))))))
+
+(alice-is adjs [])
+;; -> ["Alice is normal" "Alice is too small" "Alice is too big" "Alice is swimming"]
+
+(defn alice-is [input]
+  (loop [in input
+         out []]
+    (if (empty? in)
+      out
+      (recur (rest in)
+             (conj out
+                   (str "Alice is " (first in)))))))
+
+(alice-is adjs)
+;; -> ["Alice is normal" "Alice is too small" "Alice is too big" "Alice is swimming"]
+
+(defn countdown [n]
+  (if (= n 0)
+    n
+    (countdown (- n 1))))
+
+(countdown 3)
+;; -> 0
+
+(countdown 100000)
+;; -> java.lang.StackOverflowError
+
+(defn countdown [n]
+  (if (= n 0)
+    0
+    (recur (- n 1))))
+
+(countdown 100000)
+;; -> 0
+
+
+;; --- The Functional Shape of Data Transformations ---
+
+
+(def animals [:mouse :duck :dodo :lory :eaglet])
+;; -> #'user/animals
+
+(#(str %) :mouse)
+;; -> ":mouse"
+
+(map #(str %) animals)
+;; -> (":mouse" ":duck" ":dodo" ":lory" ":eaglet")
+
+(class (map #(str %) animals))
+;; -> clojure.lang.LazySeq
+
+(take 3 (map #(str %) (range)))
+;; -> ("0" "1" "2")
+
+(take 10 (map #(str %) (range)))
+;; -> ("0" "1" "2" "3" "4" "5" "6" "7" "8" "9")
+
+
+(println "Look at the mouse!")
+;; Look at the mouse!
+;; -> nil
+
+(def animal-print (map #(println %) animals))
+;; -> #'user/animal-print
+
+animal-print
+;; :mouse
+;; :duck
+;; :dodo
+;; :lory
+;; :eaglet
+;; -> (nil nil nil nil nil)
+
+(def animal-print (doall (map #(println %) animals)))
+
+animal-print
+;; :mouse
+;; :duck
+;; :dodo
+;; :lory
+;; :eaglet
+;; #'user/animal-print
+
+animal-print
+;; -> (nil nil nil nil nil)
+
+(def animals
+  ["mouse" "duck" "dodo" "lory" "eaglet"])
+
+(def colors
+  ["brown" "black" "blue" "pink" "gold"])
+
+(defn gen-animal-string [animal color]
+  (str color "-" animal))
+
+;; map can also take more than one collection to map agains
+(map gen-animal-string animals colors)
+;; -> ("brown-mouse" "black-duck" "blue-dodo" "pink-lory" "gold-eaglet")
+
+(def colors
+  ["brown" "black"])
+
+;; map function will terminate when the shortest collection ends
+(map gen-animal-string animals colors)
+;; -> ("brown-mouse" "black-duck")
+
+(map gen-animal-string animals (cycle ["brown" "black"]))o
+;; -> ("brown-mouse" "black-duck" "brown-dodo" "black-lory" "brown-eaglet")
+
+
+(reduce + [1 2 3 4 5])
+;; -> 15
+
+(reduce (fn [r x] (+ r (* x x))) [1 2 3])
+;; -> 14
+
+(reduce (fn [r x] (if (nil? x) r (conj r x)))
+        []
+        [:mouse nil :duck nil nil :lory])
+;; -> [:mouse :duck :lory]
+
+((complement nil?) nil)
+;; -> false
+
+((complement nil?) 1)
+;; -> true
+
+(filter (complement nil?) [:mouse nil :duck nil])
+;; -> (:mouse :duck)
+
+(class (complement nil?))
+(class (not true))
+
+(filter keyword? [:mouse nil :duck nil])
+;; -> (:mouse :duck)
+
+(remove nil? [:mouse nil :duck nil])
+;; -> (:mouse :duck)
+
+(for [animal [:mouse :duck :lory]]
+  (str (name animal)))
+;; -> ("mouse" "duck" "lory")
+
+(def r (for [animal [:mouse :duck :lory]]
+  (println (str (name animal)))))
+
+r
+
+
+(for [animal [:mouse :duck :lory]
+      color  [:red :blue]]
+  (str (name color) (name animal)))
+;; -> ("redmouse" "bluemouse" "redduck" "blueduck" "redlory" "bluelory")
+
+(for [animal [:mouse :duck :lory]
+      color  [:red :blue]
+      :let [animal-str (str "animal-" (name animal))
+            color-str (str "color-" (name color))
+            display-str (str animal-str "-" color-str)]]
+  display-str)
+;; -> ("animal-mouse-color-red" "animal-mouse-color-blue"
+;;     "animal-duck-color-red" "animal-duck-color-blue"
+;;     "animal-lory-color-red" "animal-lory-color-blue")
+
+(for [animal [:mouse :duck :lory]
+      color  [:red :blue]
+      :let [animal-str (str "animal-" (name animal))
+            color-str (str "color-"(name color))
+            display-str (str animal-str "-" color-str)]
+      :when (= color :blue)]
+  display-str)
+;; -> ("animal-mouse-color-blue" "animal-duck-color-blue" "animal-lory-color-blue")
+
+
+
