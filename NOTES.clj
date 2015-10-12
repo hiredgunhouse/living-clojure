@@ -969,3 +969,121 @@ r
 (def who-atom (atom :caterpillar))
 
 who-atom
+;; -> #<Atom@e6df69d: :caterpillar>
+
+@who-atom
+;; -> :caterpillar
+
+(reset! who-atom :chrysalis)
+;; -> :chrysalis
+
+@who-atom
+;; -> :chrysalis
+
+(def who-atom (atom :caterpillar))
+
+@who-atom
+;; -> :caterpillar
+
+(defn change [state]
+  (case state
+    :caterpillar :chrysalis
+    :chrysalis :butterfly
+    :butterfly))
+
+(swap! who-atom change)
+;; -> :chrysalis
+
+@who-atom
+;; -> :chrysalis
+
+(swap! who-atom change)
+;; -> :butterfly
+
+@who-atom
+;; -> :butterfly
+
+(swap! who-atom change)
+;; -> :butterfly
+
+@who-atom
+;; -> :butterfly
+
+(def counter (atom 0))
+
+@counter
+;; -> 0
+
+(dotimes [_ 5] (swap! counter inc))
+
+@counter
+;; -> 5
+
+(def counter (atom 0))
+
+(let [n 2]
+  (future (dotimes [_ n] (swap! counter inc)))
+  (future (dotimes [_ n] (swap! counter inc)))
+  (future (dotimes [_ n] (swap! counter inc))))
+
+@counter
+;; -> 15
+
+(def couner (atom 0))
+
+(defn inc-print [val]
+  (println val)
+  (inc val))
+
+(swap! counter inc-print)
+;; 6
+;; -> 7
+
+(def counter (atom 0))
+
+(let [n 2]
+  (future (dotimes [_ 2] (swap! counter inc-print)))
+  (future (dotimes [_ 2] (swap! counter inc-print)))
+  (future (dotimes [_ 2] (swap! counter inc-print))))
+;; 0
+;; 1
+;; 2
+;; 2 <--- !!!
+;; 3
+;; 4
+;; 5
+@counter
+;; -> 6
+
+(def alice-height (ref 3))
+(def right-hand-bites (ref 10))
+@alice-height
+;; -> 3
+@right-hand-bites
+;; -> 10
+
+(defn eat-from-right-hand []
+  (when (pos? @right-hand-bites)
+    (alter right-hand-bites dec)
+    (alter alice-height #(+ % 24))))
+
+(eat-from-right-hand)
+;; -> java.lang.IllegalStateException: No transaction running
+
+(dosync (eat-from-right-hand))
+;; -> 27
+
+@alice-height
+;; -> 27
+@right-hand-bites
+;; -> 9
+
+
+
+
+
+
+
+
+
+
