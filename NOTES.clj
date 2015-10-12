@@ -1077,13 +1077,3 @@ who-atom
 ;; -> 27
 @right-hand-bites
 ;; -> 9
-
-
-
-
-
-
-
-
-
-
