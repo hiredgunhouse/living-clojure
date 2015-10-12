@@ -917,5 +917,55 @@ r
   display-str)
 ;; -> ("animal-mouse-color-blue" "animal-duck-color-blue" "animal-lory-color-blue")
 
+(flatten [ [:duck [:mouse] [[:lory]]]])
+;; -> (:duck :mouse :lory)
+
+(vec '(1 2 3))
+;; -> [1 2 3]
+
+(into [] '(1 2 3))
+;; -> [1 2 3]
+
+(into '() [1 2 3])
+;; -> (3 2 1)
+
+(sorted-map :b 2 :a 1 :z 3)
+;; -> {:a 1, :b 2, :z 3}
+
+(sorted-map {:b 2 :a 1 :z 3})
+;; -> java.lang.IllegalArgumentExceptio: No value supplied for key: {:b 2, :a 1, :z 3}
+
+(class (sorted-map))
+;; -> clojure.lang.PersistentTreeMap
+
+(into (sorted-map) {:b 2 :c 3 :a 1})
+;; -> {:a 1, :b 2, :c3}
+
+(into {} [[:a 1] [:b 2] [:c 3]])
+;; -> {:a 1, :b 2, :c 3}
+
+(into [] {:a 1, :b 2, :c 3})
+;; -> [[:c 3] [:b 2] [:a 1]]
+
+(partition 3 [1 2 3 4 5 6 7 8 9])
+;; -> ((1 2 3) (4 5 6) (7 8 9))
+
+(partition 3 [1 2 3 4 5 6 7 8 9 10])
+;; -> ((1 2 3) (4 5 6) (7 8 9))
+
+(partition 3 '(1 2 3 4))
+;; -> ((1 2 3))
+
+(partition-all 3 [1 2 3 4 5 6 7 8 9 10])
+;; -> ((1 2 3) (4 5 6) (7 8 9) (10))
+
+(partition-by #(= 6 %) [1 2 3 4 5 6 7 8 9 10])
+;; -> ((1 2 3 4 5) (6) (7 8 9 10))
 
 
+;; --- State and Concurrency ---
+
+
+(def who-atom (atom :caterpillar))
+
+who-atom
